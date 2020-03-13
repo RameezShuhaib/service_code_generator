@@ -1,0 +1,43 @@
+from functools import wraps
+from stringcase import snakecase
+from typing import Type, Iterable, Callable, Tuple, List, Union
+import inspect
+from {{variables.application}}.api.dtos import TestData
+
+
+DATA_CLASSES = [TestData]
+
+
+def requestbody(model):
+    def decorator(f):
+        @wraps(f)
+        def new_func(*args, **kwargs):
+            body = model(**kwargs.get("body"))
+            kwargs.update({"body": body})
+            return f(*args, **kwargs)
+
+        return new_func
+
+    return decorator
+
+
+def get_methods(cls: Type[object]) -> Iterable[Tuple[str, Callable]]:
+    for members in inspect.getmembers(cls, inspect.isroutine):
+        if members[0][:2] != "__":
+            yield members
+
+
+def get_model_in_method(method: Callable) -> List[object]:
+    signature = inspect.signature(method)
+    for parameter in signature.parameters:
+        if signature.parameters[parameter].annotation in DATA_CLASSES:
+            return signature.parameters[parameter].annotation
+
+
+def apiclass(cls: Type[object]):
+    for name, method in get_methods(cls):
+        model = get_model_in_method(method)
+        if model:
+            decorate = requestbody(model)
+            setattr(cls, name, decorate(method))
+    return cls

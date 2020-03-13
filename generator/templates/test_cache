@@ -1,0 +1,29 @@
+from datetime import timedelta
+
+import fakeredis
+from {{variables.application}}.cache.cache import Cache
+
+
+class TestCache:
+    def setup_method(self):
+        self._fake_redis = fakeredis.FakeStrictRedis()
+        self._cache = Cache(
+            key_prefix="tests:", expiry=timedelta(seconds=60), redis=self._fake_redis
+        )
+
+    def test_store_and_retrieve(self):
+        dummy_data = {"one": 1, "two": 2}
+        self._cache.store("a", dummy_data)
+        assert self._cache.get_by_id("a") == dummy_data
+
+    def test_store_multi_and_retrieve_multi(self):
+        self._cache.invalidate()
+        dummy_data = {"one": {"one": 1, "1": "one"}, "two": {"two": 2, "2": "two"}}
+        self._cache.store_multi(dummy_data)
+        assert self._cache.get_by_id("one") == dummy_data["one"]
+
+    def test_invalidate(self):
+        dummy_data = {"one": 1, "two": 2}
+        self._cache.store("a", dummy_data)
+        self._cache.invalidate()
+        assert self._cache.get_by_id("a") is None

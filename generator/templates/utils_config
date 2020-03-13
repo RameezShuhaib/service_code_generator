@@ -1,0 +1,33 @@
+from os import environ
+
+
+def _create_sql_alchemy_url(db_url, db_user, db_pass, db_name):
+    return "postgresql+psycopg2://%(user)s:%(pass)s@%(url)s/%(name)s" % {
+        "user": db_user,
+        "pass": db_pass,
+        "name": db_name,
+        "url": db_url,
+    }
+
+
+class Config:
+    """
+    Common configurations
+    """
+
+    LOG_LEVEL = environ.get("{{variables.application.upper()}}_LOG_LEVEL", "DEBUG")
+    LOG_FORMAT = environ.get("{{variables.application.upper()}}_LOG_FORMAT", "console").lower()
+    SQLALCHEMY_ECHO = environ.get("SQLALCHEMY_ECHO", "false") == "true"
+
+    STATSD_API_KEY = environ.get("{{variables.application.upper()}}_STATSD_API_KEY")
+    STATSD_APP_KEY = environ.get("{{variables.application.upper()}}_STATSD_APP_KEY")
+
+    db_url = environ.get("{{variables.application.upper()}}_DB_URL")
+    db_user = environ.get("{{variables.application.upper()}}_DB_USER")
+    db_pass = environ.get("{{variables.application.upper()}}_DB_PASS")
+    db_name = environ.get("{{variables.application.upper()}}_DB_NAME")
+
+    {{variables.application.upper()}}_REDIS_HOST = environ.get("{{variables.application.upper()}}_REDIS_HOST")
+    {{variables.application.upper()}}_REDIS_PORT = environ.get("{{variables.application.upper()}}_REDIS_PORT")
+
+    SQLALCHEMY_DATABASE_URI = _create_sql_alchemy_url(db_url, db_user, db_pass, db_name)

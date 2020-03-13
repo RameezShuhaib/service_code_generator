@@ -1,0 +1,29 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+colorama = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-flask = "*"
+pytest-pep8 = "*"
+pytest-runner = "*"
+responses = "*"
+
+[packages]
+blinker = "*"
+Flask = "*"
+Flask-SQLAlchemy = "*"
+psycopg2-binary = "*"
+requests = "*"
+SQLAlchemy = "*"
+SQLAlchemy-Utils = "*"
+stringcase = "*"
+structlog = "*"
+redis = "*"
+fakeredis = "*"
+connexion = "*"
+pydantic = "*"
+injector = "*"
+flask-injector = "*"

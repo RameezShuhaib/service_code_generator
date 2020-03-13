@@ -1,0 +1,27 @@
+import logging
+
+import pytest
+
+from {{variables.application}} import create_app
+
+
+@pytest.fixture
+def app():
+    spec_file = "/app/{{variables.application}}/api/api.yml"
+    app = create_app(spec_file)
+    app.testing = True
+
+    from {{variables.application}}.store import db
+
+    with app.app_context():
+        for table in reversed(db.metadata.sorted_tables):
+            db.session.execute(table.delete())
+            db.session.commit()
+
+        yield app
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "integration: mark test to run only when a database is present"
+    )

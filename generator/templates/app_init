@@ -1,0 +1,39 @@
+from {{variables.application}}.store import configure_db_with_app
+from {{variables.application}}.utils.config import Config
+
+from {{variables.application}}.utils.flask import ValidationException
+from flask_injector import FlaskInjector
+from {{variables.application}}.utils.log import LOG
+from connexion import Api
+from flask import Flask
+from {{variables.application}}.utils.injector import injector
+from {{variables.application}}.cache import initialize as initialize_redis
+
+
+def create_app(spec_file) -> Flask:
+    # LOG.debug("{{variables.application}}.start")
+    app = Flask(__name__, instance_relative_config=True)
+    app.config.from_object(Config)
+
+    FlaskInjector(app=app, injector=injector)
+
+    blueprint = _get_spec_blueprint(spec_file)
+    app.register_blueprint(blueprint)
+
+    configure_db_with_app(app)
+    initialize_redis()
+
+    _register_error_handler(app)
+
+    return app
+
+
+def _get_spec_blueprint(spec, **yaml_kwargs):
+    api = Api(
+        spec, strict_validation=True, validate_responses=False, arguments=yaml_kwargs
+    )
+    return api.blueprint
+
+
+def _register_error_handler(app: Flask):
+    app.register_error_handler(ValidationException, lambda err: err.to_json())

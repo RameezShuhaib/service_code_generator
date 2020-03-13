@@ -1,0 +1,101 @@
+import json
+from typing import Optional, Dict, List, Any
+from datetime import timedelta
+from datetime import datetime, timedelta
+from redis import Redis
+from injector import singleton, inject
+
+KEY_FETCH_SIZE = 10
+DELETE_BATCH_SIZE = 100
+LOCAL_CACHE_MAX_SIZE = 1024
+
+DEFAULT_EXPIRY_TIME = timedelta(minutes=15)
+LOCAL_CACHE_TTL_IN_SECONDS = timedelta(minutes=1)
+
+
+class Cache:
+    def __init__(
+        self,
+        key_prefix: str,
+        redis: Redis = None,
+        expiry: timedelta = DEFAULT_EXPIRY_TIME,
+    ):
+        self._expiry = expiry.seconds
+        self._key_prefix = key_prefix
+        self._redis = redis
+        self._default_encoding = "utf8"
+
+    def store_multi(self, data: Dict[str, Any], expiry: Optional[int] = None):
+        data_dict = {
+            self._key(d): json.dumps(data[d], ensure_ascii=False).encode(
+                self._default_encoding
+            )
+            for d in data.keys()
+            if d is not None
+        }
+        self._redis.mset(data_dict)
+        self._set_expiry(data_dict.keys(), expiry or self._expiry)
+
+    def store(self, id: str, data: Dict, expiry: Optional[int] = None):
+        key_expiry = expiry or self._expiry
+        ex = None
+        if key_expiry > 0:
+            ex = timedelta(seconds=key_expiry)
+        self._redis.set(
+            self._key(id), json.dumps(data), ex=ex,
+        )
+
+    def get_by_ids(self, ids: List[str]) -> List[Dict]:
+        converted_keys = [self._key(id) for id in ids]
+        data = self._redis.mget(converted_keys)
+        return [
+            json.loads(d.decode(self._default_encoding)) if d != None else None
+            for d in data
+        ]
+
+    def get_by_id(self, id: str) -> Any:
+        result = self._redis.get(self._key(id))
+        if result:
+            return json.loads(result.decode(self._default_encoding))
+        return None
+
+    def get_keys_matching_pattern(self, pattern):
+        cursor = "0"
+        while cursor:
+            cursor, keys = self._redis.scan(
+                cursor=cursor, match=pattern, count=KEY_FETCH_SIZE
+            )
+            yield keys
+
+    def invalidate(self):
+        for keys in self.get_keys_matching_pattern(f"{self._key_prefix}*"):
+            self._redis.delete(*keys) if keys else None
+
+    def _key(self, id: str) -> str:
+        return f"{self._key_prefix}{id}"
+
+    def _set_expiry(self, keys: List[str], expiry: Optional[int]):
+        key_expiry = expiry or self._expiry
+        if not key_expiry:
+            return
+        pipeline = self._redis.pipeline()
+        for key in keys:
+            pipeline.expire(key, key_expiry)
+        pipeline.execute()
+
+
+class NoOpCache:
+    def store_multi(self, data: Dict[str, Any], expiry: Optional[int] = None):
+        pass
+
+    def store(self, id: str, data: Dict, expiry: Optional[int] = None):
+        pass
+
+    def get_by_ids(self, ids: List[str]) -> List[Dict]:
+        return [None for _ in ids]
+
+    def get_by_id(self, id: str) -> Any:
+        pass
+
+    def invalidate(self):
+        pass

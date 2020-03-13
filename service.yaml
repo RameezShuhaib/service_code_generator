@@ -1,0 +1,100 @@
+x-services:
+  ServiceA:
+    depends :
+      - ServiceB
+    interface:
+      test_method:
+        parameters:
+          - $ref: '#/components/schemas/TestListResponse'
+          - $ref: '#/components/schemas/TestListResponse'
+        returns:
+          - $ref: '#/components/schemas/TestListResponse'
+  ServiceB:
+    interface:
+      test_method:
+        parameters:
+          - $ref: '#/components/schemas/TestListResponse'
+          - $ref: '#/components/schemas/TestListResponse'
+        returns:
+          - $ref: '#/components/schemas/TestListResponse'
+
+
+
+
+x-generic:
+  className:
+    decorator:
+      - "@singleton"
+    attributes:
+      - $ref: '#/components/x-argument/TestListResponse'
+    interface:
+      decorator:
+        - "@inject"
+      method_name:
+        arguments:
+          - $ref: '#/components/x-argument/TestListResponse'
+          - $ref: '#/components/x-argument/TestListResponse'
+        return_type:
+          - $ref: '#/components/schemas/TestListResponse'
+      content: ""
+
+#{
+#  "type": "class",
+#  "name": "ServiceA",
+#  "inherits": "serviceB",
+#  "decorators": [
+#      "@singleton"
+#  ],
+#  "constructor": {
+#    "decorators": [
+#      "@inject"
+#    ],
+#    "arguments": [
+#      {
+#        "name": "arg1",
+#        "type": "",
+#        "value": 2
+#      }
+#    ],
+#    contents: [
+#      "",
+#      ""
+#    ]
+#  },
+#  "attributes": [
+#    {
+#      "name": "attrib_1",
+#      "type": "int",
+#      "value": 2
+#    }
+#  ],
+#  "methods": {
+#      [
+#        "name": "function_abc",
+#        "decorators": [
+#          "@inject"
+#        ],
+#        "arguments": [
+#          {
+#            "name": "arg1",
+#            "type": "",
+#            "value": 2
+#          }
+#        ],
+#        "return_type": None,
+#        contents: [
+#          "",
+#          ""
+#        ]
+#      ]
+#  }
+#}
+
+
+
+components:
+  x-argument:
+    TestListResponse:
+      name: abc
+      default: 10
+      type: xyz

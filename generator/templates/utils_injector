@@ -1,0 +1,21 @@
+from flask_sqlalchemy import SQLAlchemy
+from injector import Module, provider, Injector, singleton
+from redis import Redis
+
+from {{variables.application}}.cache import redis
+from {{variables.application}}.store import db
+
+
+class Provider(Module):
+    @singleton
+    @provider
+    def provide_db(self) -> SQLAlchemy:
+        return db
+
+    @singleton
+    @provider
+    def provide_redis(self) -> Redis:
+        return redis
+
+
+injector = Injector([Provider()])

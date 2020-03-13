@@ -1,0 +1,17 @@
+from python:3.7.1
+
+run pip install pipenv
+
+add Pipfile /tmp/app/
+add Pipfile.lock /tmp/app/
+
+run cd /tmp/app                          \
+   && pipenv install --system --deploy  \
+   && pip uninstall --yes pipenv
+
+add . /tmp/app
+
+run pip install gunicorn==19.9.0         \
+   && cd /tmp/app                       \
+   && pip install /tmp/app              \
+   && rm -rf /tmp/app

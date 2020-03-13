@@ -1,0 +1,11 @@
+from redis import Redis
+from {{variables.application}}.utils.config import Config
+from werkzeug.local import LocalProxy
+
+redis: Redis = LocalProxy(lambda: _redis)
+_redis = None
+
+
+def initialize():
+    global _redis
+    _redis = Redis(host=Config.{{variables.application.upper()}}_REDIS_HOST, port=Config.{{variables.application.upper()}}_REDIS_PORT, db=0,)

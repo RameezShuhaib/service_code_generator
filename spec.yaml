@@ -1,0 +1,171 @@
+openapi: 3.0.0
+info:
+  description: This spec includes consumer facing APIs
+  version: "1.0.0"
+  title: Consumer Service
+
+paths:
+  /:
+    get:
+      summary: Get test
+      operationId: "sample.api.sample.get_test"
+      tags:
+        - Test API
+      description: Get test.
+      responses:
+        200:
+          description: response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/TestListResponse'
+        400:
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /{testId}:
+    get:
+      summary: Get by id
+      operationId: "sample.api.sample.get_test_by_id"
+      parameters:
+        - $ref: '#/components/parameters/testId'
+      tags:
+        - Test API
+      description: Get test.
+      responses:
+        200:
+          description: response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/TestResponse'
+        400:
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /test_post/{testId}:
+    post:
+      operationId: "sample.api.sample.test_post"
+      parameters:
+        - $ref: '#/components/parameters/testId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestData'
+      responses:
+        200:
+          description: response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/TestResponse'
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status will always be `error`.
+          enum:
+            - error
+          example: 'error'
+        errmsg:
+          type: string
+          description: Error message.
+          example: 'An error occurred.'
+      required:
+        - status
+        - errmsg
+
+    SuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status will always be `ok`.
+          enum:
+            - ok
+          example: 'ok'
+      required:
+        - status
+
+    TestListResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status will always be `ok`.
+          enum:
+            - ok
+          example: 'ok'
+      required:
+        - status
+
+    TestResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status will always be `ok`.
+          enum:
+            - ok
+          example: 'ok'
+      required:
+        - status
+
+    TestData:
+      type: object
+      properties:
+        key_1:
+          type: string
+          description: Message text
+        key_2:
+          type: string
+          description: Message text
+      required:
+        - key_1
+        - key_2
+
+    BasicErrorModel:
+      type: object
+      required:
+        - message
+        - code
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+          minimum: 100
+          maximum: 600
+
+
+    ExtendedErrorModel:
+      allOf:
+        - $ref: '#/components/schemas/BasicErrorModel'
+        - type: object
+          required:
+            - rootCause
+          properties:
+            rootCause:
+              type: string
+
+
+  parameters:
+    testId:
+      name: testId
+      in: path
+      description: Test identifier.
+      schema:
+        type: string
+      required: true

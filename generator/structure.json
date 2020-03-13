@@ -1,0 +1,178 @@
+{
+  "type": "DIRECTORY",
+  "name": "application",
+  "sub": [
+    {
+        "type": "TEMPLATE",
+        "name": "Dockerfile",
+        "template": "root_dockerfile",
+        "variables": {"application": {"$ref":  "#/name"}}
+    },
+    {
+        "type": "TEMPLATE",
+        "name": "Dockerfile.prod",
+        "template": "root_dockerfile_prod",
+        "variables": {"application": {"$ref":  "#/name"}}
+    },
+    {
+        "type": "TEMPLATE",
+        "name": "docker-compose.yaml",
+        "template": "root_docker_compose",
+        "variables": {"application": {"$ref":  "#/name"}}
+    },
+    {
+        "type": "TEMPLATE",
+        "name": "Pipfile",
+        "template": "root_pipfile",
+        "variables": {"application": {"$ref":  "#/name"}}
+    },
+    {
+        "type": "TEMPLATE",
+        "name": "Pipfile.lock",
+        "template": "root_pipfile_lock",
+        "variables": {"application": {"$ref":  "#/name"}}
+    },
+    {
+        "type": "TEMPLATE",
+        "name": "setup.py",
+        "template": "root_setup",
+        "variables": {"application": {"$ref":  "#/name"}}
+    },
+    {
+        "type": "TEMPLATE",
+        "name": "setup.ini",
+        "template": "root_setup_ini",
+        "variables": {"application": {"$ref":  "#/name"}}
+    },
+    {
+        "type": "TEMPLATE",
+        "name": "pytest-fix.sh",
+        "template": "root_pytest_fix",
+        "variables": {"application": {"$ref":  "#/name"}}
+    },
+    {
+      "type": "DIRECTORY",
+      "name": {"$ref":  "#/name"},
+      "sub": [
+        {
+          "type": "TEMPLATE",
+          "name": "__init__.py",
+          "template": "app_init",
+          "variables": {"application": {"$ref":  "#/name"}}
+        },
+        {
+          "type": "TEMPLATE",
+          "name": "app.py",
+          "template": "app",
+          "variables": {"application": {"$ref":  "#/name"}}
+        },
+        {
+          "type": "PACKAGE",
+          "name": "api",
+          "sub": []
+        },
+        {
+          "type": "DIRECTORY",
+          "name": "cache",
+          "sub": [
+            {
+              "type": "TEMPLATE",
+              "name": "__init__.py",
+              "template": "cache_init",
+              "variables": {"application": {"$ref":  "#/name"}}
+            },
+            {
+              "type": "TEMPLATE",
+              "name": "cache.py",
+              "template": "cache",
+              "variables": {"application": {"$ref":  "#/name"}}
+            }
+          ]
+        },
+        {
+          "type": "PACKAGE",
+          "name": "domain",
+          "sub": []
+        },
+        {
+          "type": "DIRECTORY",
+          "name": "store",
+          "sub": [
+            {
+              "type": "TEMPLATE",
+              "name": "__init__.py",
+              "template": "store_init",
+              "variables": {"application": {"$ref":  "#/name"}}
+            }
+          ]
+        },
+        {
+          "type": "PACKAGE",
+          "name": "utils",
+          "sub": [
+            {
+              "type": "TEMPLATE",
+              "name": "config.py",
+              "template": "utils_config",
+              "variables": {"application": {"$ref":  "#/name"}}
+            },
+            {
+              "type": "TEMPLATE",
+              "name": "flask.py",
+              "template": "utils_flask",
+              "variables": {"application": {"$ref":  "#/name"}}
+            },
+            {
+              "type": "TEMPLATE",
+              "name": "handler.py",
+              "template": "utils_handler",
+              "variables": {"application": {"$ref":  "#/name"}}
+            },
+            {
+              "type": "TEMPLATE",
+              "name": "injector.py",
+              "template": "utils_injector",
+              "variables": {"application": {"$ref":  "#/name"}}
+            },
+            {
+              "type": "TEMPLATE",
+              "name": "log.py",
+              "template": "utils_log",
+              "variables": {"application": {"$ref":  "#/name"}}
+            },
+            {
+              "type": "TEMPLATE",
+              "name": "serialization.py",
+              "template": "utils_serialization",
+              "variables": {"application": {"$ref":  "#/name"}}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "PACKAGE",
+      "name": "test",
+      "sub": [
+        {
+            "type": "TEMPLATE",
+            "name": "conftest.py",
+            "template": "test_conftest",
+            "variables": {"application": {"$ref":  "#/name"}}
+        },
+        {
+          "type": "PACKAGE",
+          "name": "cache",
+          "sub": [
+            {
+                "type": "TEMPLATE",
+                "name": "test_cache.py",
+                "template": "test_cache",
+                "variables": {"application": {"$ref":  "#/name"}}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

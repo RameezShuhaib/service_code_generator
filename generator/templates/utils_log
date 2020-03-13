@@ -1,0 +1,7 @@
+from .config import Config
+
+# from some_common_library.log import configure_logging
+
+# LOG = configure_logging("eta", Config.LOG_LEVEL, Config.LOG_FORMAT)
+# ToDo: Think of what logger to use
+LOG = None

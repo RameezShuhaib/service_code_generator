@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  {{variables.application}}-redis:
+    container_name: {{variables.application}}-redis
+    image: redis
+    ports:
+      - "9199:6379"
+    restart: always
+
+  {{variables.application}}_db_dev:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: {{variables.application}}_password
+      POSTGRES_USER: {{variables.application}}_user
+      POSTGRES_DB: {{variables.application}}_dev
+
+  {{variables.application}}_dev_dbmate:
+    build: ./dbmate-docker
+    environment:
+      DATABASE_URL: postgres://{{variables.application}}_user:{{variables.application}}_password@{{variables.application}}_db_dev:5432/{{variables.application}}_dev?sslmode=disable
+    volumes:
+    - ./:/usr/data
+    depends_on:
+    - {{variables.application}}_db_dev
+    working_dir: /usr/data
+    command: bash -c "dbmate wait && dbmate up && dbmate dump"
+
+  {{variables.application}}_web:
+    build: ./
+    volumes:
+      - ./:/app
+    environment:
+      - FLASK_APP={{variables.application}}/app.py
+      - {{variables.application.upper()}}_DB_URL={{variables.application}}_db_dev
+      - {{variables.application.upper()}}_DB_USER={{variables.application}}_user
+      - {{variables.application.upper()}}_DB_PASS={{variables.application}}_password
+      - {{variables.application.upper()}}_DB_NAME={{variables.application}}_dev
+      - {{variables.application.upper()}}_REDIS_HOST={{variables.application}}-redis
+      - {{variables.application.upper()}}_REDIS_PORT=6379
+      - DEBUG=true
+    depends_on:
+    - {{variables.application}}_dev_dbmate
+    - {{variables.application}}-redis
+    ports:
+    - "9198:5000"
+    command: flask run --host="0.0.0.0"
