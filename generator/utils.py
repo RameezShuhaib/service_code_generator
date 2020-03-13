@@ -1,11 +1,10 @@
-import contextlib
 import json
 import os
 from os import path
 from pathlib import Path
-from typing import Iterator, Optional
 
 import yaml
+from jsoncomment import JsonComment
 
 
 def make_package(name, directory, init_code=None, force_dir=False):
@@ -45,19 +44,7 @@ def read_service_spec(service_file):
         return yaml.safe_load(stream)
 
 
-def read_project_structure(file):
+def read_json(file):
     with open(file, "r") as stream:
-        return json.loads(stream.read())
-
-
-@contextlib.contextmanager
-def chdir(path: Optional[Path]) -> Iterator[None]:
-    if path is None:
-        yield
-    else:
-        prev_cwd = Path.cwd()
-        try:
-            os.chdir(path if path.is_dir() else path.parent)
-            yield
-        finally:
-            os.chdir(prev_cwd)
+        parser = JsonComment(stream.read())
+        return json.loads(parser)

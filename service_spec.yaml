@@ -1,0 +1,104 @@
+openapi: 3.0.0
+info:
+  description: This is Service spec for Account Services
+  version: "1.0.0"
+  title: Account Services
+
+paths:
+  /:
+    get:
+      responses:
+        200:
+          description: DummyResponse
+
+# All Our Services
+x-services:
+  AccountService:
+    depends:
+      - WalletService
+      - AccountRepo
+      - OrderExService
+    interface:
+      get_account_details:
+        arguments:
+          - name: "account_id"
+            type: UUID
+        returns: AccountDetails
+    allow_test: True
+
+  WalletService:
+    depends:
+      - WalletRepo
+    interface:
+      get_balace:
+        arguments:
+          - name: "account_id"
+            type: UUID
+        returns: int
+    allow_test: True
+
+# All Our Ex-Services
+x-ex-services:
+  OrderService:
+    spec: "#file://order_service.yaml"
+    allow_test: True
+
+# All Our Repos
+x-repos:
+  WalletRepo:
+    crud:
+      table_name: wallet
+      model: Wallet
+    translator: True
+    allow_test: True
+
+  AccountRepo:
+    crud:
+      table_name: account
+      model: Account
+    translator: True
+    allow_test: True
+
+  TestRepo:
+    empty: True
+
+
+# All Our Domain Models
+components:
+  schemas:
+    Positions:
+      type: object
+      properties:
+        stock:
+          type: string
+        symbol:
+          type: string
+        quantity:
+          type: integer
+          format: int32
+          minimum : 0
+        avg_buy_price:
+          type: integer
+          minimum : 0
+        avg_sell_price:
+          type: integer
+          minimum: 0
+      required:
+        - stock
+        - symbol
+        - quantity
+        - avg_buy_price
+        - avg_sell_price
+
+    AccountDetails:
+      type: object
+      properties:
+        cash:
+          type: integer
+          description: Total cash in the account
+        positions:
+          type: object
+          $ref: '#/components/schemas/Positions'
+      required:
+        - cash
+        - positions

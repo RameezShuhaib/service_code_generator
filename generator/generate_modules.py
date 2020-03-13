@@ -31,4 +31,3 @@ def generate_modules(data: Dict, current_dir: str = "."):
 
     elif data["type"] == "DATA":
         generate_data(data, current_dir)
-

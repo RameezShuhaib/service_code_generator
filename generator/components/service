@@ -1,0 +1,37 @@
+{
+    "type": "class",
+    "name": "{{name}}",
+    "decorators": [
+        "@singleton",
+    ],
+    {%- if service_data.get("depends") -%}
+    "constructor": {
+        "decorators": [
+            "@inject"
+        ],
+        "arguments": [
+            {%- for dependency in service_data["depends"] -%}{
+                "name": "{{snakecase(dependency)}}",
+                "type": "{{dependency}}",
+            }{%- endfor -%}
+        ],
+        "contents": [
+            {%- for dependency in service_data["depends"] -%}"self._{{snakecase(dependency)}}: dependency = {{snakecase(dependency)}}", {%- endfor -%}
+        ]
+    },{%- endif -%}
+    "methods": [
+        {%- for method in service_data.get("interface", []) -%}{
+            "name": "{{method}}",
+            {%- if service_data["interface"][method].get("arguments") -%}"arguments": [
+                {%- for argument in service_data["interface"][method]["arguments"] -%}{
+                    "name": "{{argument["name"]}}",
+                    "type": "{{argument["type"]}}",
+                },{%- endfor -%}
+            ],{%- endif -%}
+            {%- if service_data["interface"][method].get("returns") -%}"return_type": {{service_data["interface"][method]["returns"]}},{%- endif -%}
+            "contents": [
+                "pass"
+            ]
+        },{%- endfor -%}
+    ],
+}

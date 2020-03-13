@@ -1,11 +1,14 @@
-from generator.generator import generate
+from generator.generator import generate, generate_models, generate_services
 from generator.components import make_class
 from generator.generate_modules import generate_modules
-from generator.utils import read_project_structure
+from generator.utils import read_json
 from jsonref import JsonRef
 
+
 if __name__ == "__main__":
-    generate("spec.yaml")
+    # generate("spec.yaml")
+    # generate_models("service_spec.yaml")
+    generate_services("service_spec.yaml")
     # data = {
     #     "type": "class",
     #     "name": "ServiceA",

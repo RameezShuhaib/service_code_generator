@@ -1,5 +1,6 @@
 from jinja2 import Environment, FileSystemLoader
-from generator.constants import INTEGRATION_TEST_DECORATOR
+from stringcase import snakecase
+
 
 component_loader = FileSystemLoader("generator/components")
 env_component = Environment(loader=component_loader)
@@ -16,6 +17,19 @@ def make_code(statements, imports=()):
 def make_class(class_data):
     template = env_component.get_template("class")
     return template.render(class_data=class_data)
+
+
+def make_service(data):
+    template = env_component.get_template("service")
+    for service in data["x-services"]:
+        print(data["x-services"][service])
+        print(
+            template.render(
+                name=service,
+                service_data=data["x-services"][service],
+                snakecase=snakecase,
+            )
+        )
 
 
 def make(template_name, variables=None):
