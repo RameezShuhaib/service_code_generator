@@ -1,0 +1,12 @@
+{% for decorator in decorators -%}
+{{decorator}}
+{% endfor -%}
+def {{method_name}}({% if is_class %}self, {% endif %}{% for parameter in parameters %}{{parameter}}, {% endfor %})
+{%- if return_type %} -> {{return_type}}{% endif %}:
+{%- filter indent(width=4) %}
+{% if contents -%}
+{% for content in contents -%}
+{{content}}
+{% endfor %}
+{% else %}pass{% endif %}
+{% endfilter -%}

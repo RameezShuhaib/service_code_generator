@@ -1,7 +1,7 @@
 from jinja2 import Environment, FileSystemLoader
 from generator.constants import INTEGRATION_TEST_DECORATOR
 
-component_loader = FileSystemLoader("generator/component")
+component_loader = FileSystemLoader("generator/components")
 env_component = Environment(loader=component_loader)
 
 template_loader = FileSystemLoader("generator/templates")
