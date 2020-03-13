@@ -3,7 +3,7 @@
 {% endfor -%}
 class {{class_data["name"]}}{% if class_data.get("inherits") %}({{class_data["inherits"]}}){% endif %}:
 {% filter indent(width=4) -%}
-{% for attribute in class_data.get("attributes") %}
+{% for attribute in class_data.get("attributes", []) %}
 {{attribute["name"]}}{% if attribute["type"] %}: {{attribute["type"]}}{% endif %}{% if attribute["value"] %} = {{attribute["value"]}}{% endif %}
 {%- endfor %}
 
@@ -23,14 +23,14 @@ pass
 {% endfilter -%}
 {%- endif %}
 {% if class_data.get("methods") -%}
-{% for method in class_data.get("methods") %}
+{% for method in class_data.get("methods", []) %}
 {%- for decorator in method.get("decorators", []) -%}
 {{decorator}}
 {% endfor -%}
 def {{method["name"]}}(self, {% for arg in method.get("arguments", []) %}{{arg["name"]}}{% if arg["type"] %}: {{arg["type"]}}{% endif %}{% if arg["value"] %} = {{arg["value"]}}{% endif %}, {% endfor %}){%- if method.get("return_type") %} -> {{method["return_type"]}}{%- endif -%}:
 {%- filter indent(width=4) -%}
 {%- if method.get("contents") -%}
-{% for content in method.get("contents") %}
+{% for content in method.get("contents", []) %}
 {{content}}
 {%- endfor %}
 {%- else -%}

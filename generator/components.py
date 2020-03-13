@@ -1,5 +1,9 @@
+import json
+
 from jinja2 import Environment, FileSystemLoader
 from stringcase import snakecase
+
+from generator.utils import clean_json
 
 
 component_loader = FileSystemLoader("generator/components")
@@ -22,14 +26,12 @@ def make_class(class_data):
 def make_service(data):
     template = env_component.get_template("service")
     for service in data["x-services"]:
-        print(data["x-services"][service])
-        print(
-            template.render(
-                name=service,
-                service_data=data["x-services"][service],
-                snakecase=snakecase,
-            )
+        service_json = template.render(
+            name=service, service_data=data["x-services"][service], snakecase=snakecase,
         )
+        service_json = clean_json(service_json)
+        service_class = make_class(json.loads(service_json))
+        print(service_class)
 
 
 def make(template_name, variables=None):

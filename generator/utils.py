@@ -1,10 +1,17 @@
 import json
 import os
+import re
 from os import path
 from pathlib import Path
 
 import yaml
-from jsoncomment import JsonComment
+
+
+def clean_json(string):
+    string = re.sub(",[ \t\r\n]+}", "}", string)
+    string = re.sub(",[ \t\r\n]+\]", "]", string)
+
+    return string
 
 
 def make_package(name, directory, init_code=None, force_dir=False):
@@ -46,5 +53,5 @@ def read_service_spec(service_file):
 
 def read_json(file):
     with open(file, "r") as stream:
-        parser = JsonComment(stream.read())
-        return json.loads(parser)
+        json_data = clean_json(stream.read())
+        return json.loads(json_data)

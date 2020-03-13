@@ -8,8 +8,6 @@ verify_ssl = true
 [packages]
 jsonref = "*"
 stringcase = "*"
-jsoncomment = "*"
-yaml = "*"
 
 [requires]
 python_version = "3.7"
