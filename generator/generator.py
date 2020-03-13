@@ -1,9 +1,11 @@
 from collections import defaultdict
-from copy import deepcopy
-from generator.utils import read_service_spec, make_file
+
+from jsonref import JsonRef
+
 from generator.components import make_method
 from generator.generate_models import make_models
-from jsonref import JsonRef
+from generator.generate_modules import generate_modules
+from generator.utils import read_service_spec, make_file, read_project_structure
 
 
 def get_endpoints(spec):
@@ -74,3 +76,7 @@ def generate(spec_file):
     spec = read_service_spec(spec_file)
     generate_api(spec)
     generate_models(spec_file)
+
+    structure = read_project_structure("generator/structure.json")
+    resolved_structure = JsonRef.replace_refs(structure)
+    generate_modules(data=resolved_structure, current_dir=".")

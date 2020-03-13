@@ -5,7 +5,7 @@ from generator.utils import read_project_structure
 from jsonref import JsonRef
 
 if __name__ == "__main__":
-    # generate("spec.yaml")
+    generate("spec.yaml")
     # data = {
     #     "type": "class",
     #     "name": "ServiceA",
@@ -89,7 +89,3 @@ if __name__ == "__main__":
     #     ],
     # }
     # print(make_class(data))
-
-    structure = read_project_structure("generator/structure.json")
-    resolved_structure = JsonRef.replace_refs(structure)
-    generate_modules(data=resolved_structure, current_dir=".")
