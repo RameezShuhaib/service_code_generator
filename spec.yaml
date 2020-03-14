@@ -8,7 +8,7 @@ paths:
   /:
     get:
       summary: Get test
-      operationId: "sample.api.sample.get_test"
+      operationId: "sample.get_test"
       tags:
         - Test API
       description: Get test.
@@ -29,7 +29,7 @@ paths:
   /{testId}:
     get:
       summary: Get by id
-      operationId: "sample.api.sample.get_test_by_id"
+      operationId: "sample.get_test_by_id"
       parameters:
         - $ref: '#/components/parameters/testId'
       tags:
@@ -51,9 +51,12 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
   /test_post/{testId}:
     post:
-      operationId: "sample.api.sample.test_post"
+      x-depends:
+        - TestNewService
+      operationId: "sample.test_post"
       parameters:
         - $ref: '#/components/parameters/testId'
+      x-request-body-type: TestData
       requestBody:
         content:
           application/json:

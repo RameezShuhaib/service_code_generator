@@ -23,6 +23,18 @@ def make_class(class_data):
     return template.render(class_data=class_data)
 
 
+def make_api(api_meta, api_data):
+    template = env_component.get_template("api")
+    for api in api_meta.keys() - ["Spec"]:
+        api_json = template.render(
+            name=api, api_meta=api_meta[api], api_data=api_data[api.lower()], snakecase=snakecase,
+        )
+        api_json = clean_json(api_json)
+        api_class = make_class(json.loads(api_json))
+
+        print(api_class)
+
+
 def make_service(data):
     template = env_component.get_template("service")
     for service in data["x-services"]:
@@ -32,6 +44,17 @@ def make_service(data):
         service_json = clean_json(service_json)
         service_class = make_class(json.loads(service_json))
         print(service_class)
+
+
+def make_repo(data):
+    template = env_component.get_template("repo")
+    for repo in data["x-repos"]:
+        repo_json = template.render(
+            name=repo, repo_data=data["x-repos"][repo], snakecase=snakecase,
+        )
+        repo_json = clean_json(repo_json)
+        repo_class = make_class(json.loads(repo_json))
+        print(repo_class)
 
 
 def make(template_name, variables=None):

@@ -1,0 +1,42 @@
+{
+    "type": "class",
+    "name": "{{name}}",
+    "decorators": [
+        "@singleton",
+    ],
+    "constructor": {
+        "decorators": [
+            "@inject"
+        ],
+        "arguments": [
+            {
+                "name": "db",
+                "type": "SQLAlchemy",
+            },
+            {%- for dependency in repo_data["depends"] %}
+            {
+                "name": "{{snakecase(dependency)}}",
+                "type": "{{dependency}}",
+            },
+            {% endfor %}
+        ],
+        "contents": [
+            "self._db: SQLAlchemy = db", {%- for dependency in repo_data["depends"] -%}"self._{{snakecase(dependency)}}: {{dependency}} = {{snakecase(dependency)}}", {% endfor %}
+        ]
+    },
+    "methods": [
+        {%- for method in repo_data.get("interface", []) -%}{
+            "name": "{{method}}",
+            {% if repo_data["interface"][method].get("arguments") -%}"arguments": [
+                {%- for argument in repo_data["interface"][method]["arguments"] -%}{
+                    "name": "{{argument["name"]}}",
+                    "type": "{{argument["type"]}}",
+                }, {% endfor -%}
+            ], {% endif -%}
+            {%- if repo_data["interface"][method].get("returns") -%}"return_type": "{{repo_data["interface"][method]["returns"]}}",{%- endif -%}
+            "contents": [
+                "pass"
+            ]
+        }, {% endfor -%}
+    ]
+}

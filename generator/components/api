@@ -1,0 +1,40 @@
+{
+    "type": "class",
+    "name": "{{name}}",
+    "decorators": [
+        "@singleton",
+        "@apiclass"
+    ],
+    {%- if api_meta.get("depends") -%}
+    "constructor": {
+        "decorators": [
+            "@inject"
+        ],
+        "arguments": [
+            {% for dependency in api_meta["depends"] %}
+            {
+                "name": "{{snakecase(dependency)}}",
+                "type": "{{dependency}}",
+            },
+            {% endfor %}
+        ],
+        "contents": [
+            {%- for dependency in api_meta["depends"] -%}"self._{{snakecase(dependency)}}: {{dependency}} = {{snakecase(dependency)}}", {% endfor %}
+        ]
+    },{%- endif -%}
+    "methods": [
+        {%- for method in api_data -%}{
+            "name": "{{method["method_name"]}}",
+            {% if method.get("arguments") -%}"arguments": [
+                {%- for argument in method["arguments"] -%}{
+                    "name": "{{argument["name"]}}",
+                    {% if argument.get("type") %} "type": "{{argument["type"]}}", {% endif -%}
+                }, {% endfor -%}
+            ], {% endif -%}
+            "return_type": "APIResponse",
+            "contents": [
+                "return APIResponse({})"
+            ]
+        }, {% endfor -%}
+    ]
+}
