@@ -41,10 +41,20 @@ def _filter_type(_type):
 
 
 def _get_dependency_types(data):
-    repos = list(map(lambda x: x["name"], filter(_filter_type("Repo"), data.get("depends", []))))
-    services = list(map(lambda x: x["name"], filter(_filter_type("Service"), data.get("depends", []))))
+    repos = list(
+        map(lambda x: x["name"], filter(_filter_type("Repo"), data.get("depends", [])))
+    )
+    services = list(
+        map(
+            lambda x: x["name"],
+            filter(_filter_type("Service"), data.get("depends", [])),
+        )
+    )
     ex_services = list(
-        map(lambda x: x["name"], filter(_filter_type("ExService"), data.get("depends", [])))
+        map(
+            lambda x: x["name"],
+            filter(_filter_type("ExService"), data.get("depends", [])),
+        )
     )
     return repos, services, ex_services
 

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "def891da008bdca15ab0429cbc30cea4a21fc84fee669d01d10c8a5dcc9380db"
+            "sha256": "2507bb523a282397a33ac6195390efd695b916ee28d89e2ba7612b1f5517f7b6"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,13 @@
         ]
     },
     "default": {
+        "autoflake": {
+            "hashes": [
+                "sha256:680cb9dade101ed647488238ccb8b8bfb4369b53d58ba2c8cdf7d5d54e01f95b"
+            ],
+            "index": "pypi",
+            "version": "==1.3.1"
+        },
         "jsonref": {
             "hashes": [
                 "sha256:b1e82fa0b62e2c2796a13e5401fe51790b248f6d9bf9d7212a3e31a3501b291f",
@@ -23,6 +30,13 @@
             ],
             "index": "pypi",
             "version": "==0.2"
+        },
+        "pyflakes": {
+            "hashes": [
+                "sha256:17dbeb2e3f4d772725c777fabc446d5634d1038f234e77343108ce445ea69ce0",
+                "sha256:d976835886f8c5b31d47970ed689944a0262b5f3afa00a5a7b4dc81e5449f8a2"
+            ],
+            "version": "==2.1.1"
         },
         "stringcase": {
             "hashes": [

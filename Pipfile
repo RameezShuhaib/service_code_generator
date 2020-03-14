@@ -8,6 +8,7 @@ verify_ssl = true
 [packages]
 jsonref = "*"
 stringcase = "*"
+autoflake = "*"
 
 [requires]
 python_version = "3.7"

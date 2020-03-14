@@ -88,6 +88,7 @@ paths:
               schema:
                 oneOf:
                   - $ref: '#/components/schemas/TestResponse'
+                  - $ref: '#/components/schemas/TestListResponse'
 
 components:
   schemas:
@@ -133,6 +134,7 @@ components:
         - status
 
     TestResponse:
+      x-response-type: TestResponse
       type: object
       properties:
         status:

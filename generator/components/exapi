@@ -1,0 +1,29 @@
+{
+    "type": "class",
+    "name": "{{name}}",
+    "imports": [
+        "from injector import singleton",
+        "import requests",
+        "from {{application}}.utils.handler import exception_wrapper",
+        "from requests import RequestException",
+    ],
+    "decorators": [
+        "@singleton",
+        "@apiclass"
+    ],
+    "methods": [
+        {%- for method in api_data -%}{
+            "name": "{{method["method_name"]}}",
+            {% if method.get("arguments") -%}"arguments": [
+                {%- for argument in method["arguments"] -%}{
+                    "name": "{{argument["name"]}}",
+                    {% if argument.get("type") %} "type": "{{argument["type"]}}", {% endif -%}
+                }, {% endfor -%}
+            ], {% endif -%}
+            "return_type": "APIResponse",
+            "contents": [
+                "return APIResponse({})"
+            ]
+        }, {% endfor -%}
+    ]
+}

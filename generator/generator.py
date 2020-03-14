@@ -1,12 +1,47 @@
 from collections import defaultdict
+from typing import Dict
 
 from jsonref import JsonRef
 from stringcase import snakecase
 
-from generator.components import make_method, make_service, make_repo, make_api
+from generator.components import make_service, make_repo, make_api
 from generator.generate_models import make_models
 from generator.generate_modules import generate_modules
-from generator.utils import read_service_spec, make_file, read_json
+from generator.utils import read_service_spec, read_json
+
+
+OPEN_API_PRIMITIVES_MAPPING = {
+    "number": "float",
+    "integer": "int",
+    "string": "str",
+    "boolean": "bool",
+    "array": "List",
+}
+
+
+def map_arguments(type, format):
+
+    if format == "uuid":
+        return "UUID"
+    elif format == "date":
+        return "date"
+    elif format == "date-time":
+        return "datetime"
+
+    return OPEN_API_PRIMITIVES_MAPPING[type]
+
+
+def backup_ref(spec: Dict):
+    if isinstance(spec, list):
+        return [backup_ref(s) for s in spec]
+    if isinstance(spec, dict):
+        spec_cpy = {}
+        for s in spec:
+            if s == "$ref":
+                spec_cpy["x-ref"] = spec[s].split("/")[-1]
+            spec_cpy[s] = spec[s]
+        return {s: backup_ref(spec_cpy[s]) for s in spec_cpy}
+    return spec
 
 
 def get_parameter(spec, endpoint, method="get"):
@@ -14,18 +49,26 @@ def get_parameter(spec, endpoint, method="get"):
     parameters = _method.get("parameters", [])
     request_type = _method.get("x-request-body-type")
     body_param = (
-        [
-            {
-                "name": _method["requestBody"]["content"]["application/json"][
-                    "schema"
-                ].get("x-body-name", "body"),
-                "type": request_type,
-            }
-        ]
+        [{"name": "body", "type": request_type,}]
         if bool(_method.get("requestBody"))
         else []
     )
-    return [{"name": parameter["name"]} for parameter in parameters] + body_param
+    return [
+        {
+            "name": parameter["name"],
+            "type": map_arguments(
+                parameter["schema"]["type"], parameter["schema"].get("format")
+            ),
+        }
+        for parameter in parameters
+    ] + body_param
+
+
+def get_response_data(spec: Dict, endpoint: str, method: str):
+    response = spec["paths"][endpoint][method]["responses"].get(200)
+    if not response:
+        return []
+    return spec["paths"][endpoint][method]["responses"][200]["content"]["application/json"]["schema"]["oneOf"]
 
 
 def get_api_data(spec):
@@ -35,11 +78,16 @@ def get_api_data(spec):
     for endpoint in spec["paths"]:
         for method in spec["paths"][endpoint]:
 
+            response_types = [
+                response.get("x-response-type") for response in get_response_data(spec, endpoint, method)
+            ]
+
             api_name, method_name = spec["paths"][endpoint][method][
                 "operationId"
             ].split(".")
             data[snakecase(api_name)].append(
                 {
+                    "response_type": list(filter(lambda x: x, response_types)),
                     "method_name": method_name,
                     "arguments": get_parameter(spec, endpoint, method),
                     "http_method": method,
@@ -60,12 +108,12 @@ def generate_api(structure, open_api, spec):
     structure["sub"].append(models)
 
 
-def generate_domain(structure, open_api, spec):
+def generate_domain(structure, spec):
 
-    services = make_repo(spec["x-services"], application=spec["x-Application"])
+    services = make_service(spec["x-services"], application=spec["x-Application"])
     structure["sub"].extend(services)
 
-    models = make_models("models.py", open_api)
+    models = make_models("models.py", spec)
     structure["sub"].append(models)
 
 
@@ -76,7 +124,7 @@ def generate_store(structure, spec):
 
 
 def _make_valid(spec):
-    spec["path"] = {
+    spec["paths"] = {
         "/": {"get": {"responses": {200: {"description": "DummyResponse"}}}}
     }
     return spec
@@ -104,7 +152,7 @@ def generate(spec_file):
     generate_api(structure=api, open_api=open_api, spec=spec)
 
     domain = next(filter(lambda x: x["name"] == "domain", application["sub"]))
-    generate_domain(structure=domain, open_api=open_api, spec=spec)
+    generate_domain(structure=domain, spec=spec)
 
     store = next(filter(lambda x: x["name"] == "store", application["sub"]))
     generate_store(structure=store, spec=spec)

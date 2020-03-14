@@ -40,7 +40,7 @@
                     {% if argument.get("type") %} "type": "{{argument["type"]}}", {% endif -%}
                 }, {% endfor -%}
             ], {% endif -%}
-            "return_type": "APIResponse",
+            "return_type": {%if method["response_type"] %} "Union[{{",".join(method["response_type"]+["APIResponse"])}}]" {%else%} "APIResponse" {% endif %} ,
             "contents": [
                 "return APIResponse({})"
             ]

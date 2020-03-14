@@ -14,8 +14,6 @@ x-apis:
     depends:
       - name: AccountService
         type: Service
-    models:
-      - AccountRequest
   WalletApi:
     depends:
       - name: WalletService
@@ -64,7 +62,7 @@ x-services:
 # All Our Ex-Services
 x-ex-services:
   OrderService:
-    spec: "#file://order_service.yaml"
+    spec: "order_service.yaml"
     allow_test: True
 
 # All Our Repos
@@ -126,6 +124,7 @@ components:
           type: integer
           minimum: 100
           maximum: 600
+
     ExtendedErrorModel:
       allOf:
         - $ref: '#/components/schemas/BasicErrorModel'
