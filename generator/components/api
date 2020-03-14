@@ -1,6 +1,15 @@
 {
     "type": "class",
     "name": "{{name}}",
+    "imports": [
+        "from injector import inject",
+        {% if repos != [] %} "from {{application}}.store.repos import {{", ".join(repos)}}", {% endif %}
+        {% if services != [] %} "from {{application}}.domain.service import {{", ".join(services)}}", {% endif %}
+        {% if ex_services != [] %} "from {{application}}.domain.ex_service import {{", ".join(ex_services)}}", {% endif %}
+        "from {{application}}.utils.flask import APIResponse",
+        "from {{application}}.utils.handler import apiclass",
+        "from {{application}}.utils.injector import injector"
+    ],
     "decorators": [
         "@singleton",
         "@apiclass"
@@ -13,13 +22,13 @@
         "arguments": [
             {% for dependency in api_meta["depends"] %}
             {
-                "name": "{{snakecase(dependency)}}",
-                "type": "{{dependency}}",
+                "name": "{{snakecase(dependency['name'])}}",
+                "type": "{{dependency['name']}}",
             },
             {% endfor %}
         ],
         "contents": [
-            {%- for dependency in api_meta["depends"] -%}"self._{{snakecase(dependency)}}: {{dependency}} = {{snakecase(dependency)}}", {% endfor %}
+            {%- for dependency in api_meta["depends"] -%}"self._{{snakecase(dependency['name'])}}: {{dependency['name']}} = {{snakecase(dependency['name'])}}", {% endfor %}
         ]
     },{%- endif -%}
     "methods": [

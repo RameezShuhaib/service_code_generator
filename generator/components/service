@@ -1,6 +1,12 @@
 {
     "type": "class",
     "name": "{{name}}",
+    "imports": [
+        "from injector import singleton, inject",
+        {% if repos != [] %} "from {{application}}.store.repos import {{", ".join(repos)}}", {% endif %}
+        {% if services != [] %} "from {{application}}.domain.service import {{", ".join(services)}}", {% endif %}
+        {% if ex_services != [] %} "from {{application}}.domain.ex_service import {{", ".join(ex_services)}}", {% endif %}
+    ],
     "decorators": [
         "@singleton",
     ],
@@ -12,13 +18,13 @@
         "arguments": [
             {%- for dependency in service_data["depends"] %}
             {
-                "name": "{{snakecase(dependency)}}",
-                "type": "{{dependency}}",
+                "name": "{{snakecase(dependency['name'])}}",
+                "type": "{{dependency['name']}}",
             },
             {% endfor -%}
         ],
         "contents": [
-            {%- for dependency in service_data["depends"] -%}"self._{{snakecase(dependency)}}: {{dependency}} = {{snakecase(dependency)}}", {% endfor -%}
+            {%- for dependency in service_data["depends"] -%}"self._{{snakecase(dependency['name'])}}: {{dependency['name']}} = {{snakecase(dependency['name'])}}", {% endfor -%}
         ]
     },{%- endif -%}
     "methods": [

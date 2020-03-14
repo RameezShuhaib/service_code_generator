@@ -12,26 +12,35 @@ x-Spec: "service.yaml"
 x-apis:
   AccountApi:
     depends:
-      - AccountService
+      - name: AccountService
+        type: Service
     models:
       - AccountRequest
   WalletApi:
     depends:
-      - WalletService
+      - name: WalletService
+        type: Service
     exceptions:
       - BalanceException
   PortfolioApi:
     depends:
-      - AccountService
-      - PortfilioService
+      - name: AccountService
+        type: Service
+      - name: PortfilioService
+        type: Service
 
 # All Our Services
 x-services:
   AccountService:
     depends:
-      - WalletService
-      - AccountRepo
-      - OrderExService
+      - name: WalletService
+        type: Service
+
+      - name: AccountRepo
+        type: Repo
+
+      - name: OrderExService
+        type: ExService
     interface:
       get_account_details:
         arguments:
@@ -42,7 +51,8 @@ x-services:
 
   WalletService:
     depends:
-      - WalletRepo
+      - name: WalletRepo
+        type: Service
     interface:
       get_balace:
         arguments:

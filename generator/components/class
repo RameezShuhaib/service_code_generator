@@ -1,4 +1,7 @@
-{%- for decorator in class_data.get("decorators", []) -%}
+{% for _import in class_data.get("imports", []) -%}
+{{_import}}
+{% endfor %}
+{% for decorator in class_data.get("decorators", []) -%}
 {{decorator}}
 {% endfor -%}
 class {{class_data["name"]}}{% if class_data.get("inherits") %}({{class_data["inherits"]}}){% endif %}:

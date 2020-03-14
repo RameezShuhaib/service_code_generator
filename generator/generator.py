@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from jsonref import JsonRef
+from stringcase import snakecase
 
 from generator.components import make_method, make_service, make_repo, make_api
 from generator.generate_models import make_models
@@ -37,7 +38,7 @@ def get_api_data(spec):
             api_name, method_name = spec["paths"][endpoint][method][
                 "operationId"
             ].split(".")
-            data[api_name.lower()].append(
+            data[snakecase(api_name)].append(
                 {
                     "method_name": method_name,
                     "arguments": get_parameter(spec, endpoint, method),
@@ -47,58 +48,21 @@ def get_api_data(spec):
     return dict(data)
 
 
-# def generate_api(meta_file, spec_file):
-#     spec = read_service_spec(spec_file)
-#     meta = read_service_spec(meta_file)
-#
-#     resolved_spec = JsonRef.replace_refs(spec)
-#     api_data = get_api_data(resolved_spec)
-#
-#     resolved_meta = JsonRef.replace_refs(meta)
-#     make_api(resolved_meta["x-apis"], api_data)
-#
-#
-# def generate_models(spec_file):
-#     models_code = make_models("models.py", spec_file)
-#     make_file(name="models.py", directory=".", code=models_code, force_dir=False)
-#
-#
-# def generate_services(spec_file):
-#     spec = read_service_spec(spec_file)
-#     resolved_spec = JsonRef.replace_refs(spec)
-#     make_service(resolved_spec["x-services"])
-#
-#
-# def generate_repo(spec_file):
-#     spec = read_service_spec(spec_file)
-#     resolved_spec = JsonRef.replace_refs(spec)
-#     make_repo(resolved_spec["x-repos"])
-
-
-# def generate(spec_file):
-#     spec = read_service_spec(spec_file)
-#     # generate_api(spec)
-#     # generate_models(spec_file)
-#
-#     structure = read_json("generator/structure.json")
-#     resolved_structure = JsonRef.replace_refs(structure)
-#     generate_modules(data=resolved_structure, current_dir=".")
-
-
 def generate_api(structure, open_api, spec):
 
     resolved_open_api = JsonRef.replace_refs(open_api)
     api_data = get_api_data(resolved_open_api)
 
-    apis = make_api(spec["x-apis"], api_data)
-    models = make_models("dtos.py", open_api)
+    apis = make_api(spec["x-apis"], api_data, application=spec["x-Application"])
     structure["sub"].extend(apis)
+
+    models = make_models("dtos.py", open_api)
     structure["sub"].append(models)
 
 
 def generate_domain(structure, open_api, spec):
 
-    services = make_repo(spec["x-services"])
+    services = make_repo(spec["x-services"], application=spec["x-Application"])
     structure["sub"].extend(services)
 
     models = make_models("models.py", open_api)
@@ -107,7 +71,7 @@ def generate_domain(structure, open_api, spec):
 
 def generate_store(structure, spec):
 
-    repos = make_repo(spec["x-repos"])
+    repos = make_repo(spec["x-repos"], application=spec["x-Application"])
     structure["sub"].extend(repos)
 
 
@@ -138,8 +102,11 @@ def generate(spec_file):
 
     api = next(filter(lambda x: x["name"] == "api", application["sub"]))
     generate_api(structure=api, open_api=open_api, spec=spec)
+
     domain = next(filter(lambda x: x["name"] == "domain", application["sub"]))
     generate_domain(structure=domain, open_api=open_api, spec=spec)
+
     store = next(filter(lambda x: x["name"] == "store", application["sub"]))
     generate_store(structure=store, spec=spec)
+
     generate_modules(data=resolved_structure, current_dir=".")

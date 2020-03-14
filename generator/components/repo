@@ -4,6 +4,13 @@
     "decorators": [
         "@singleton",
     ],
+    "imports": [
+        "from injector import singleton, inject",
+        "from flask_sqlalchemy import SQLAlchemy",
+        {% if repos != [] %} "from {{application}}.store.repos import {{", ".join(repos)}}", {% endif %}
+        {% if services != [] %} "from {{application}}.domain.service import {{", ".join(services)}}", {% endif %}
+        {% if ex_services != [] %} "from {{application}}.domain.ex_service import {{", ".join(ex_services)}}", {% endif %}
+    ],
     "constructor": {
         "decorators": [
             "@inject"
@@ -15,13 +22,13 @@
             },
             {%- for dependency in repo_data["depends"] %}
             {
-                "name": "{{snakecase(dependency)}}",
-                "type": "{{dependency}}",
+                "name": "{{snakecase(dependency['name'])}}",
+                "type": "{{dependency['name']}}",
             },
             {% endfor %}
         ],
         "contents": [
-            "self._db: SQLAlchemy = db", {%- for dependency in repo_data["depends"] -%}"self._{{snakecase(dependency)}}: {{dependency}} = {{snakecase(dependency)}}", {% endfor %}
+            "self._db: SQLAlchemy = db", {%- for dependency in repo_data["depends"] -%}"self._{{snakecase(dependency['name'])}}: {{dependency['name']}} = {{snakecase(dependency['name'])}}", {% endfor %}
         ]
     },
     "methods": [
