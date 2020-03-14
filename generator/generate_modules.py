@@ -9,7 +9,7 @@ def generate_template(data: Dict, current_dir: str):
 
 
 def generate_data(data: Dict, current_dir: str):
-    make_file(name=data["name"], directory=current_dir, code=data["code"])
+    make_file(name=data["name"], directory=current_dir, code=data["data"])
 
 
 def generate_modules(data: Dict, current_dir: str = "."):

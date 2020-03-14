@@ -4,7 +4,7 @@ from datamodel_code_generator.model.pydantic import (
     CustomRootType,
     dump_resolve_reference_action,
 )
-
+from typing import Dict
 from datamodel_code_generator import snooper_to_methods
 from datamodel_code_generator.parser.jsonschema import JsonSchemaParser
 from prance import BaseParser
@@ -23,19 +23,15 @@ class OpenAPIParser(JsonSchemaParser):
             self.parse_raw_obj(obj_name, raw_obj)
 
 
-def make_models(name: str, model_spec: str):
+def make_models(name: str, open_api: Dict):
 
     parser = OpenAPIParser(
         BaseModel,
         CustomRootType,
         base_class="pydantic.BaseModel",
         target_python_version=PythonVersion("3.7"),
-        text=model_spec,
+        text=str(open_api),
         dump_resolve_reference_action=dump_resolve_reference_action,
     )
 
-    return {
-        "type": "DATA",
-        "name": name,
-        "data": parser.parse()
-    }
+    return {"type": "DATA", "name": name, "data": parser.parse()}

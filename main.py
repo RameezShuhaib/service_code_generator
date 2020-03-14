@@ -1,9 +1,9 @@
 from generator.generator import (
     generate,
-    generate_models,
-    generate_services,
-    generate_repo,
-    generate_api
+    # generate_models,
+    # generate_services,
+    # generate_repo,
+    generate_api,
 )
 from generator.components import make_class
 from generator.generate_modules import generate_modules
@@ -14,7 +14,8 @@ from jsonref import JsonRef
 if __name__ == "__main__":
     # generate("spec.yaml")
     # generate_models("service_spec.yaml")
-    generate_api("service_spec.yaml", "service.yaml")
+    generate("service_spec.yaml")
+    # generate_api("service_spec.yaml", "service.yaml")
     # data = {
     #     "type": "class",
     #     "name": "ServiceA",

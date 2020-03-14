@@ -28,16 +28,17 @@ def make_api(api_meta, api_data):
     structure = []
     for api in api_meta.keys() - ["Spec"]:
         api_json = template.render(
-            name=api, api_meta=api_meta[api], api_data=api_data[snakecase(api)], snakecase=snakecase,
+            name=api,
+            api_meta=api_meta[api],
+            api_data=api_data[snakecase(api)],
+            snakecase=snakecase,
         )
         api_json = clean_json(api_json)
         api_class = make_class(json.loads(api_json))
 
-        structure.append({
-            "type": "DATA",
-            "name": f"{snakecase(api)}.py",
-            "data": api_class,
-        })
+        structure.append(
+            {"type": "DATA", "name": f"{snakecase(api)}.py", "data": api_class,}
+        )
     return structure
 
 
@@ -50,11 +51,9 @@ def make_service(service_data):
         )
         service_json = clean_json(service_json)
         service_class = make_class(json.loads(service_json))
-        structure.append({
-            "type": "DATA",
-            "name": f"{snakecase(service)}.py",
-            "data": service_class,
-        })
+        structure.append(
+            {"type": "DATA", "name": f"{snakecase(service)}.py", "data": service_class,}
+        )
     return structure
 
 
@@ -67,11 +66,9 @@ def make_repo(repo_data):
         )
         repo_json = clean_json(repo_json)
         repo_class = make_class(json.loads(repo_json))
-        structure.append({
-            "type": "DATA",
-            "name": f"{snakecase(repo)}.py",
-            "data": repo_class,
-        })
+        structure.append(
+            {"type": "DATA", "name": f"{snakecase(repo)}.py", "data": repo_class,}
+        )
     return structure
 
 

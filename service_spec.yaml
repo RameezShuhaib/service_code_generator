@@ -4,28 +4,23 @@ info:
   version: "1.0.0"
   title: Account Services
 
-paths:
-  /:
-    get:
-      responses:
-        200:
-          description: DummyResponse
+x-Application: "Account"
 
+x-Spec: "service.yaml"
 
 # All Our APIs
 x-apis:
-  Spec: "file://service.yaml"
-  AccountAPI:
+  AccountApi:
     depends:
       - AccountService
     models:
       - AccountRequest
-  WalletAPI:
+  WalletApi:
     depends:
       - WalletService
     exceptions:
       - BalanceException
-  PortfolioAPI:
+  PortfolioApi:
     depends:
       - AccountService
       - PortfilioService
