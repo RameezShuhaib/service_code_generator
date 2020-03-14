@@ -68,7 +68,9 @@ def get_response_data(spec: Dict, endpoint: str, method: str):
     response = spec["paths"][endpoint][method]["responses"].get(200)
     if not response:
         return []
-    return spec["paths"][endpoint][method]["responses"][200]["content"]["application/json"]["schema"]["oneOf"]
+    return spec["paths"][endpoint][method]["responses"][200]["content"][
+        "application/json"
+    ]["schema"]["oneOf"]
 
 
 def get_api_data(spec):
@@ -79,7 +81,8 @@ def get_api_data(spec):
         for method in spec["paths"][endpoint]:
 
             response_types = [
-                response.get("x-response-type") for response in get_response_data(spec, endpoint, method)
+                response.get("x-response-type")
+                for response in get_response_data(spec, endpoint, method)
             ]
 
             api_name, method_name = spec["paths"][endpoint][method][
