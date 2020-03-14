@@ -23,18 +23,19 @@ class OpenAPIParser(JsonSchemaParser):
             self.parse_raw_obj(obj_name, raw_obj)
 
 
-def make_models(file: str):
-
-    with open(file, "rt") as f:
-        text = f.read()
+def make_models(name: str, model_spec: str):
 
     parser = OpenAPIParser(
         BaseModel,
         CustomRootType,
         base_class="pydantic.BaseModel",
         target_python_version=PythonVersion("3.7"),
-        text=text,
+        text=model_spec,
         dump_resolve_reference_action=dump_resolve_reference_action,
     )
 
-    return parser.parse()
+    return {
+        "type": "DATA",
+        "name": name,
+        "data": parser.parse()
+    }

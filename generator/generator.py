@@ -64,20 +64,25 @@ def generate_models(spec_file):
 def generate_services(spec_file):
     spec = read_service_spec(spec_file)
     resolved_spec = JsonRef.replace_refs(spec)
-    make_service(resolved_spec)
+    make_service(resolved_spec["x-services"])
 
 
 def generate_repo(spec_file):
     spec = read_service_spec(spec_file)
     resolved_spec = JsonRef.replace_refs(spec)
-    make_repo(resolved_spec)
+    make_repo(resolved_spec["x-repos"])
+
+
+# def generate(spec_file):
+#     spec = read_service_spec(spec_file)
+#     # generate_api(spec)
+#     # generate_models(spec_file)
+#
+#     structure = read_json("generator/structure.json")
+#     resolved_structure = JsonRef.replace_refs(structure)
+#     generate_modules(data=resolved_structure, current_dir=".")
 
 
 def generate(spec_file):
-    spec = read_service_spec(spec_file)
-    # generate_api(spec)
-    # generate_models(spec_file)
+    pass
 
-    structure = read_json("generator/structure.json")
-    resolved_structure = JsonRef.replace_refs(structure)
-    generate_modules(data=resolved_structure, current_dir=".")

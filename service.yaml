@@ -8,7 +8,7 @@ paths:
   /:
     get:
       summary: Get test
-      operationId: "walletapi.get_test"
+      operationId: "wallet_api.get_test"
       tags:
         - Test API
       description: Get test.
@@ -29,7 +29,7 @@ paths:
   /{testId}:
     get:
       summary: Get by id
-      operationId: "walletapi.get_test_by_id"
+      operationId: "wallet_api.get_test_by_id"
       parameters:
         - $ref: '#/components/parameters/testId'
       tags:
@@ -51,9 +51,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
   /test_post/{testId}:
     post:
-      x-depends:
-        - TestNewService
-      operationId: "portfolioapi.test_post"
+      operationId: "portfolio_api.test_post"
       parameters:
         - $ref: '#/components/parameters/testId'
       x-request-body-type: TestData
@@ -73,9 +71,7 @@ paths:
 
   /account/{testId}:
     post:
-      x-depends:
-        - TestNewService
-      operationId: "accountapi.test_post"
+      operationId: "account_api.test_post"
       parameters:
         - $ref: '#/components/parameters/testId'
       x-request-body-type: TestData

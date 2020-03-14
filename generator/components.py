@@ -25,41 +25,54 @@ def make_class(class_data):
 
 def make_api(api_meta, api_data):
     template = env_component.get_template("api")
+    structure = []
     for api in api_meta.keys() - ["Spec"]:
         api_json = template.render(
-            name=api, api_meta=api_meta[api], api_data=api_data[api.lower()], snakecase=snakecase,
+            name=api, api_meta=api_meta[api], api_data=api_data[snakecase(api)], snakecase=snakecase,
         )
         api_json = clean_json(api_json)
         api_class = make_class(json.loads(api_json))
 
-        print(api_class)
+        structure.append({
+            "type": "DATA",
+            "name": f"{snakecase(api)}.py",
+            "data": api_class,
+        })
+    return structure
 
 
-def make_service(data):
+def make_service(service_data):
     template = env_component.get_template("service")
-    for service in data["x-services"]:
+    structure = []
+    for service in service_data:
         service_json = template.render(
-            name=service, service_data=data["x-services"][service], snakecase=snakecase,
+            name=service, service_data=service_data[service], snakecase=snakecase,
         )
         service_json = clean_json(service_json)
         service_class = make_class(json.loads(service_json))
-        print(service_class)
+        structure.append({
+            "type": "DATA",
+            "name": f"{snakecase(service)}.py",
+            "data": service_class,
+        })
+    return structure
 
 
-def make_repo(data):
+def make_repo(repo_data):
     template = env_component.get_template("repo")
-    for repo in data["x-repos"]:
+    structure = []
+    for repo in repo_data:
         repo_json = template.render(
-            name=repo, repo_data=data["x-repos"][repo], snakecase=snakecase,
+            name=repo, repo_data=repo_data[repo], snakecase=snakecase,
         )
         repo_json = clean_json(repo_json)
         repo_class = make_class(json.loads(repo_json))
-        print(repo_class)
-
-
-def make(template_name, variables=None):
-    template = env_template.get_template(template_name)
-    return template.render(variables=variables)
+        structure.append({
+            "type": "DATA",
+            "name": f"{snakecase(repo)}.py",
+            "data": repo_class,
+        })
+    return structure
 
 
 def make_method(
@@ -82,3 +95,8 @@ def make_method(
         decorators=decorators or [],
         contents=contents,
     )
+
+
+def make(template_name, variables=None):
+    template = env_template.get_template(template_name)
+    return template.render(variables=variables)
