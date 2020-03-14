@@ -1,9 +1,32 @@
 import json
+from enum import Enum
+from typing import Dict
 
+import black
 from jinja2 import Environment, FileSystemLoader
 from stringcase import snakecase
 
 from generator.utils import clean_json
+
+
+class PythonVersion(Enum):
+    PY_36 = "3.6"
+    PY_37 = "3.7"
+    PY_38 = "3.8"
+
+
+BLACK_PYTHON_VERSION: Dict[PythonVersion, black.TargetVersion] = {
+    PythonVersion.PY_36: black.TargetVersion.PY36,
+    PythonVersion.PY_37: black.TargetVersion.PY37,
+    PythonVersion.PY_38: black.TargetVersion.PY38,
+}
+
+
+black_mode = black.FileMode(
+    target_versions={BLACK_PYTHON_VERSION[PythonVersion["PY_36"]]},
+    line_length=black.DEFAULT_LINE_LENGTH,
+    string_normalization=False,
+)
 
 
 component_loader = FileSystemLoader("generator/components")
@@ -37,7 +60,11 @@ def make_api(api_meta, api_data):
         api_class = make_class(json.loads(api_json))
 
         structure.append(
-            {"type": "DATA", "name": f"{snakecase(api)}.py", "data": api_class,}
+            {
+                "type": "DATA",
+                "name": f"{snakecase(api)}.py",
+                "data": black.format_str(api_class, mode=black_mode),
+            }
         )
     return structure
 
@@ -52,7 +79,11 @@ def make_service(service_data):
         service_json = clean_json(service_json)
         service_class = make_class(json.loads(service_json))
         structure.append(
-            {"type": "DATA", "name": f"{snakecase(service)}.py", "data": service_class,}
+            {
+                "type": "DATA",
+                "name": f"{snakecase(service)}.py",
+                "data": black.format_str(service_class, mode=black_mode),
+            }
         )
     return structure
 
@@ -67,7 +98,11 @@ def make_repo(repo_data):
         repo_json = clean_json(repo_json)
         repo_class = make_class(json.loads(repo_json))
         structure.append(
-            {"type": "DATA", "name": f"{snakecase(repo)}.py", "data": repo_class,}
+            {
+                "type": "DATA",
+                "name": f"{snakecase(repo)}.py",
+                "data": black.format_str(repo_class, mode=black_mode),
+            }
         )
     return structure
 

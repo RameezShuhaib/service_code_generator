@@ -97,11 +97,18 @@ def generate_api(structure, open_api, spec):
 
 
 def generate_domain(structure, open_api, spec):
-    pass
+
+    services = make_repo(spec["x-services"])
+    structure["sub"].extend(services)
+
+    models = make_models("models.py", open_api)
+    structure["sub"].append(models)
 
 
-def generate_store(structure, open_api, spec):
-    pass
+def generate_store(structure, spec):
+
+    repos = make_repo(spec["x-repos"])
+    structure["sub"].extend(repos)
 
 
 def _make_valid(spec):
@@ -134,5 +141,5 @@ def generate(spec_file):
     domain = next(filter(lambda x: x["name"] == "domain", application["sub"]))
     generate_domain(structure=domain, open_api=open_api, spec=spec)
     store = next(filter(lambda x: x["name"] == "store", application["sub"]))
-    generate_store(structure=store, open_api=open_api, spec=spec)
+    generate_store(structure=store, spec=spec)
     generate_modules(data=resolved_structure, current_dir=".")
