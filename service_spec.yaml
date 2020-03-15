@@ -67,10 +67,14 @@ x-ex-services:
 
 # All Our Repos
 x-repos:
+  x-tables:
+    - Wallet
+    - Account
+    - Test
   WalletRepo:
     crud:
-      table_name: wallet
-      model: Wallet
+      table: Wallet
+      domain: Wallet
     translator: True
     allow_test: True
 

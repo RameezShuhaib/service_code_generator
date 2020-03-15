@@ -1,0 +1,10 @@
+from sqlalchemy import func
+from sqlalchemy_utils import UUIDType
+
+from {{application}}.store import db
+
+
+{%- for model in models %}
+class {{model["name"]}}Model(db.Model):
+    __tablename__ = "{{model["table"]}}"
+{%- endfor -%}

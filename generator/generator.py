@@ -4,7 +4,7 @@ from typing import Dict
 from jsonref import JsonRef
 from stringcase import snakecase
 
-from generator.components import make_service, make_repo, make_api, make_ex_service
+from generator.components import make_service, make_repo, make_api, make_ex_service, make_repo_models
 from generator.generate_models import make_models
 from generator.generate_modules import generate_modules
 from generator.utils import read_spec, read_json
@@ -136,7 +136,7 @@ def generate_domain(structure, spec):
 
     # Generate service
     services = make_service(spec["x-services"], application=spec["x-Application"])
-    structure["sub"].extend(services)
+    structure["sub"].append(services)
 
     # Generate ex-services
     ex_service_structure = generate_ex_service(spec)
@@ -150,7 +150,10 @@ def generate_domain(structure, spec):
 def generate_store(structure, spec):
 
     repos = make_repo(spec["x-repos"], application=spec["x-Application"])
-    structure["sub"].extend(repos)
+    structure["sub"].append(repos)
+
+    repo_model = make_repo_models(spec["x-repos"], application=spec["x-Application"])
+    structure["sub"].append(repo_model)
 
 
 def _make_valid(spec):

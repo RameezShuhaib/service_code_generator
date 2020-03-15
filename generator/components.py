@@ -195,14 +195,33 @@ def make_service(service_data, application):
                 "data": black.format_str(service_class, mode=black_mode),
             }
         )
-    return structure
+    return {"type": "PACKAGE", "name": "services", "sub": structure}
+
+
+def make_repo_models(repo_data, application):
+    sqlalchemy_template = env_component.get_template("sqlalchemymodel")
+
+    models = [{"name": table, "table": snakecase(table)} for table in repo_data.get("x-tables", [])]
+
+    repo_model = sqlalchemy_template.render(
+        models=models,
+        application=application,
+    )
+
+    return {
+        "type": "DATA",
+        "name": "models.py",
+        "data": black.format_str(repo_model, mode=black_mode),
+    }
 
 
 def make_repo(repo_data, application):
     template = env_component.get_template("repo")
+
     structure = []
-    for repo in repo_data:
+    for repo in repo_data.keys() - ["x-tables"]:
         repos, services, ex_services = _get_dependency_types(repo_data[repo])
+
         repo_json = template.render(
             repos=repos,
             services=services,
@@ -221,7 +240,8 @@ def make_repo(repo_data, application):
                 "data": black.format_str(repo_class, mode=black_mode),
             }
         )
-    return structure
+
+    return {"type": "PACKAGE", "name": "repos", "sub": structure}
 
 
 def make_method(
