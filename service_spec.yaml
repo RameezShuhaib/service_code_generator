@@ -61,8 +61,8 @@ x-services:
 
 # All Our Ex-Services
 x-ex-services:
-  OrderService:
-    spec: "order_service.yaml"
+  OrderExService:
+    spec: "service.yaml"
     allow_test: True
 
 # All Our Repos

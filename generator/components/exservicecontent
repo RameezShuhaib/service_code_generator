@@ -1,0 +1,17 @@
+response = requests.{{method}}(
+    f"{self.url}{{endpoint}}",
+    {% if body -%}json=body.dict(),{%- endif %}
+    {% if query -%}params={ {%- for v in query %}"{{v}}": {{v}}{% if not loop.last %}, {% endif %} {% endfor -%} } ,{%- endif %}
+    {% if headers -%}headers= { {%- for v in headers %}"{{v}}": {{v}}{% if not loop.last %}, {% endif %} {% endfor -%} } ,{%- endif %}
+)
+if response.status_code != HTTPStatus.OK:
+    raise {{name}}Failure(
+        f"""
+        Invalid response from {{name}}
+
+        response code: {response.status_code}
+        response text: {response.text}
+        """
+    )
+
+return response.json()["data"]

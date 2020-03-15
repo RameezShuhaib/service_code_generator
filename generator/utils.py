@@ -46,7 +46,7 @@ def make_file(name, directory, code=None, force_dir=False):
         return final_path
 
 
-def read_service_spec(service_file):
+def read_spec(service_file):
     with open(service_file, "r") as stream:
         return yaml.safe_load(stream)
 

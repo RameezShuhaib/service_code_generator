@@ -12,6 +12,8 @@ paths:
       tags:
         - Test API
       description: Get test.
+      parameters:
+        - $ref: '#/components/parameters/queryId'
       responses:
         200:
           description: response
@@ -188,6 +190,14 @@ components:
     testId:
       name: testId
       in: path
+      description: Test identifier.
+      schema:
+        type: string
+      required: true
+
+    queryId:
+      name: testId
+      in: query
       description: Test identifier.
       schema:
         type: string

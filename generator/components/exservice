@@ -9,21 +9,21 @@
     ],
     "decorators": [
         "@singleton",
-        "@apiclass"
     ],
     "methods": [
-        {%- for method in api_data -%}{
+        {%- for method in ex_service_meta -%}{
             "name": "{{method["method_name"]}}",
+            "decorators": [
+                "@exception_wrapper(catch_exception=RequestException, raise_exception={{name}}Failure)"
+            ],
             {% if method.get("arguments") -%}"arguments": [
                 {%- for argument in method["arguments"] -%}{
                     "name": "{{argument["name"]}}",
                     {% if argument.get("type") %} "type": "{{argument["type"]}}", {% endif -%}
                 }, {% endfor -%}
             ], {% endif -%}
-            "return_type": "APIResponse",
-            "contents": [
-                "return APIResponse({})"
-            ]
+            {% if method["response_type"] %} "return_type": "Union[ {{",".join(method["response_type"])}} ]", {% endif %}
+            "contents": [ "{{'", "'.join(contents[method['method_name']])}}" ]
         }, {% endfor -%}
     ]
 }

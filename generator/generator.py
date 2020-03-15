@@ -4,10 +4,10 @@ from typing import Dict
 from jsonref import JsonRef
 from stringcase import snakecase
 
-from generator.components import make_service, make_repo, make_api
+from generator.components import make_service, make_repo, make_api, make_ex_service
 from generator.generate_models import make_models
 from generator.generate_modules import generate_modules
-from generator.utils import read_service_spec, read_json
+from generator.utils import read_spec, read_json
 
 
 OPEN_API_PRIMITIVES_MAPPING = {
@@ -49,7 +49,7 @@ def get_parameter(spec, endpoint, method="get"):
     parameters = _method.get("parameters", [])
     request_type = _method.get("x-request-body-type")
     body_param = (
-        [{"name": "body", "type": request_type,}]
+        [{"name": "body", "type": request_type, "in": "body"}]
         if bool(_method.get("requestBody"))
         else []
     )
@@ -59,6 +59,7 @@ def get_parameter(spec, endpoint, method="get"):
             "type": map_arguments(
                 parameter["schema"]["type"], parameter["schema"].get("format")
             ),
+            "in": parameter["in"],
         }
         for parameter in parameters
     ] + body_param
@@ -73,26 +74,27 @@ def get_response_data(spec: Dict, endpoint: str, method: str):
     ]["schema"]["oneOf"]
 
 
-def get_api_data(spec):
+def get_open_api_data(open_api):
 
     data = defaultdict(list)
 
-    for endpoint in spec["paths"]:
-        for method in spec["paths"][endpoint]:
+    for endpoint in open_api["paths"]:
+        for method in open_api["paths"][endpoint]:
 
             response_types = [
                 response.get("x-response-type")
-                for response in get_response_data(spec, endpoint, method)
+                for response in get_response_data(open_api, endpoint, method)
             ]
 
-            api_name, method_name = spec["paths"][endpoint][method][
+            api_name, method_name = open_api["paths"][endpoint][method][
                 "operationId"
             ].split(".")
             data[snakecase(api_name)].append(
                 {
+                    "endpoint": endpoint,
                     "response_type": list(filter(lambda x: x, response_types)),
                     "method_name": method_name,
-                    "arguments": get_parameter(spec, endpoint, method),
+                    "arguments": get_parameter(open_api, endpoint, method),
                     "http_method": method,
                 }
             )
@@ -102,7 +104,7 @@ def get_api_data(spec):
 def generate_api(structure, open_api, spec):
 
     resolved_open_api = JsonRef.replace_refs(open_api)
-    api_data = get_api_data(resolved_open_api)
+    api_data = get_open_api_data(resolved_open_api)
 
     apis = make_api(spec["x-apis"], api_data, application=spec["x-Application"])
     structure["sub"].extend(apis)
@@ -111,11 +113,36 @@ def generate_api(structure, open_api, spec):
     structure["sub"].append(models)
 
 
+def generate_ex_service(spec):
+
+    structure = []
+    for ex_service, ex_service_data in spec["x-ex-services"].items():
+        ex_service_open_api = read_spec(ex_service_data["spec"])
+        resolved_ex_service_open_api = JsonRef.replace_refs(ex_service_open_api)
+        open_api_data = get_open_api_data(resolved_ex_service_open_api)
+        ex_service_models = make_models("models.py", ex_service_open_api)
+        ex_service_structure = make_ex_service(
+            name=ex_service,
+            ex_service_data=open_api_data,
+            application=spec["x-Application"],
+        )
+        ex_service_structure["sub"].append(ex_service_models)
+
+        structure.append(ex_service_structure)
+    return {"type": "PACKAGE", "name": "ex_service", "sub": structure}
+
+
 def generate_domain(structure, spec):
 
+    # Generate service
     services = make_service(spec["x-services"], application=spec["x-Application"])
     structure["sub"].extend(services)
 
+    # Generate ex-services
+    ex_service_structure = generate_ex_service(spec)
+    structure["sub"].append(ex_service_structure)
+
+    # Generate domain models
     models = make_models("models.py", spec)
     structure["sub"].append(models)
 
@@ -134,13 +161,13 @@ def _make_valid(spec):
 
 
 def generate(spec_file):
-    spec = read_service_spec(spec_file)
+    spec = read_spec(spec_file)
     spec = _make_valid(spec)
 
     application_name = spec["x-Application"]
     open_api_file = spec["x-Spec"]
 
-    open_api = read_service_spec(open_api_file)
+    open_api = read_spec(open_api_file)
 
     structure = read_json("generator/structure.json")
     structure["name"] = application_name

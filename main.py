@@ -27,7 +27,7 @@ if __name__ == "__main__":
     #         "decorators": [
     #             "@inject"
     #         ],
-    #         "arguments": [
+    #         "arguments" [
     #             {
     #                 "name": "arg1",
     #                 "type": "int",
