@@ -4,7 +4,14 @@ from typing import Dict
 from jsonref import JsonRef
 from stringcase import snakecase
 
-from generator.components import make_service, make_repo, make_api, make_ex_service, make_repo_models
+from generator.components import (
+    make_service,
+    make_repo,
+    make_api,
+    make_ex_service,
+    make_repo_models,
+)
+from generator.test_components import make_test_service
 from generator.generate_models import make_models
 from generator.generate_modules import generate_modules
 from generator.utils import read_spec, read_json
@@ -101,18 +108,6 @@ def get_open_api_data(open_api):
     return dict(data)
 
 
-def generate_api(structure, open_api, spec):
-
-    resolved_open_api = JsonRef.replace_refs(open_api)
-    api_data = get_open_api_data(resolved_open_api)
-
-    apis = make_api(spec["x-apis"], api_data, application=spec["x-Application"])
-    structure["sub"].extend(apis)
-
-    models = make_models("dtos.py", open_api)
-    structure["sub"].append(models)
-
-
 def generate_ex_service(spec):
 
     structure = []
@@ -132,11 +127,28 @@ def generate_ex_service(spec):
     return {"type": "PACKAGE", "name": "ex_service", "sub": structure}
 
 
-def generate_domain(structure, spec):
+def generate_api(structure, test_structure, open_api, spec):
+
+    resolved_open_api = JsonRef.replace_refs(open_api)
+    api_data = get_open_api_data(resolved_open_api)
+
+    apis = make_api(spec["x-apis"], api_data, application=spec["x-Application"])
+    structure["sub"].extend(apis)
+
+    models = make_models("models.py", open_api)
+    structure["sub"].append(models)
+
+
+def generate_domain(structure, test_structure, spec):
 
     # Generate service
     services = make_service(spec["x-services"], application=spec["x-Application"])
     structure["sub"].append(services)
+
+    services_test = make_test_service(spec, application=spec["x-Application"])
+    test_structure["sub"].append(
+        {"type": "PACKAGE", "name": "domain", "sub": [services_test]}
+    )
 
     # Generate ex-services
     ex_service_structure = generate_ex_service(spec)
@@ -147,7 +159,7 @@ def generate_domain(structure, spec):
     structure["sub"].append(models)
 
 
-def generate_store(structure, spec):
+def generate_store(structure, test_structure, spec):
 
     repos = make_repo(spec["x-repos"], application=spec["x-Application"])
     structure["sub"].append(repos)
@@ -182,12 +194,12 @@ def generate(spec_file):
     test = next(filter(lambda x: x["name"] == "test", resolved_structure["sub"]))
 
     api = next(filter(lambda x: x["name"] == "api", application["sub"]))
-    generate_api(structure=api, open_api=open_api, spec=spec)
+    generate_api(structure=api, test_structure=test, open_api=open_api, spec=spec)
 
     domain = next(filter(lambda x: x["name"] == "domain", application["sub"]))
-    generate_domain(structure=domain, spec=spec)
+    generate_domain(structure=domain, test_structure=test, spec=spec)
 
     store = next(filter(lambda x: x["name"] == "store", application["sub"]))
-    generate_store(structure=store, spec=spec)
+    generate_store(structure=store, test_structure=test, spec=spec)
 
     generate_modules(data=resolved_structure, current_dir=".")

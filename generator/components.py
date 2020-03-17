@@ -1,35 +1,14 @@
 import json
-from enum import Enum
-from typing import Dict
 
 import black
 from jinja2 import Environment, FileSystemLoader
-from stringcase import snakecase, camelcase
+from stringcase import snakecase
 
-from generator.utils import clean_json
-
-
-def uppercamelcase(string):
-    return string[0].upper() + camelcase(string[1:]) if string else None
-
-
-class PythonVersion(Enum):
-    PY_36 = "3.6"
-    PY_37 = "3.7"
-    PY_38 = "3.8"
-
-
-BLACK_PYTHON_VERSION: Dict[PythonVersion, black.TargetVersion] = {
-    PythonVersion.PY_36: black.TargetVersion.PY36,
-    PythonVersion.PY_37: black.TargetVersion.PY37,
-    PythonVersion.PY_38: black.TargetVersion.PY38,
-}
-
-
-black_mode = black.FileMode(
-    target_versions={BLACK_PYTHON_VERSION[PythonVersion["PY_36"]]},
-    line_length=black.DEFAULT_LINE_LENGTH,
-    string_normalization=False,
+from generator.utils import (
+    clean_json,
+    black_mode,
+    uppercamelcase,
+    split_add_content_escape,
 )
 
 
@@ -107,10 +86,7 @@ def make_ex_service_content(service_name, ex_service_meta):
             query=query,
             header=header,
         )
-    return {
-        key: content.replace('"', '\\"').split("\n")
-        for key, content in contents.items()
-    }
+    return split_add_content_escape(contents)
 
 
 def make_ex_service(name, ex_service_data, application):
@@ -201,12 +177,12 @@ def make_service(service_data, application):
 def make_repo_models(repo_data, application):
     sqlalchemy_template = env_component.get_template("sqlalchemymodel")
 
-    models = [{"name": table, "table": snakecase(table)} for table in repo_data.get("x-tables", [])]
+    models = [
+        {"name": table, "table": snakecase(table)}
+        for table in repo_data.get("x-tables", [])
+    ]
 
-    repo_model = sqlalchemy_template.render(
-        models=models,
-        application=application,
-    )
+    repo_model = sqlalchemy_template.render(models=models, application=application,)
 
     return {
         "type": "DATA",

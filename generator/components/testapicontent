@@ -1,0 +1,10 @@
+with app.test_client() as client:
+    response = client.{{method}}(
+        f"{self.url}{{endpoint}}",
+        {% if body -%}json=body.dict(),{%- endif %}
+        {% if query -%}params={ {%- for v in query %}"{{v}}": {{v}}{% if not loop.last %}, {% endif %} {% endfor -%} } ,{%- endif %}
+        {% if headers -%}headers= { {%- for v in headers %}"{{v}}": {{v}}{% if not loop.last %}, {% endif %} {% endfor -%} } ,{%- endif %}
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.get_json()["data"]) != 0

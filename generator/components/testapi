@@ -1,5 +1,0 @@
-with app.test_client() as client:
-    response = client.{{http_method}}(
-        "{{path}}"",
-        {% if json%}json={{json}}{% endif %}
-    )

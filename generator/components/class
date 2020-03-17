@@ -6,6 +6,7 @@
 {% endfor -%}
 class {{class_data["name"]}}{% if class_data.get("inherits") %}({{class_data["inherits"]}}){% endif %}:
 {% filter indent(width=4) -%}
+{% if not class_data.get("methods") and not class_data.get("constructor") %}    pass{% endif %}
 {% for attribute in class_data.get("attributes", []) %}
 {{attribute["name"]}}{% if attribute["type"] %}: {{attribute["type"]}}{% endif %}{% if attribute["value"] %} = {{attribute["value"]}}{% endif %}
 {%- endfor %}
@@ -36,7 +37,7 @@ def {{method["name"]}}(self, {% for arg in method.get("arguments", []) %}{{arg["
 {% for content in method.get("contents", []) %}
 {{content}}
 {%- endfor %}
-{%- else -%}
+{%- else %}
 pass
 {%- endif %}
 

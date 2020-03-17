@@ -1,10 +1,38 @@
 import json
 import os
 import re
+from enum import Enum
 from os import path
 from pathlib import Path
+from typing import Dict
 
+import black
 import yaml
+from stringcase import camelcase
+
+
+def uppercamelcase(string):
+    return (string[0].upper() + camelcase(string[1:])) if string else None
+
+
+class PythonVersion(Enum):
+    PY_36 = "3.6"
+    PY_37 = "3.7"
+    PY_38 = "3.8"
+
+
+BLACK_PYTHON_VERSION: Dict[PythonVersion, black.TargetVersion] = {
+    PythonVersion.PY_36: black.TargetVersion.PY36,
+    PythonVersion.PY_37: black.TargetVersion.PY37,
+    PythonVersion.PY_38: black.TargetVersion.PY38,
+}
+
+
+black_mode = black.FileMode(
+    target_versions={BLACK_PYTHON_VERSION[PythonVersion["PY_36"]]},
+    line_length=black.DEFAULT_LINE_LENGTH,
+    string_normalization=False,
+)
 
 
 def clean_json(string):
@@ -12,6 +40,13 @@ def clean_json(string):
     string = re.sub(",[ \t\r\n]+\]", "]", string)
 
     return string
+
+
+def split_add_content_escape(contents):
+    return {
+        key: content.replace('"', '\\"').split("\n")
+        for key, content in contents.items()
+    }
 
 
 def make_package(name, directory, init_code=None, force_dir=False):

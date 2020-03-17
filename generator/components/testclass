@@ -1,0 +1,27 @@
+{
+    "type": "class",
+    "name": "Test{{name}}",
+    "imports": [
+        "from unittest.mock import patch, Mock",
+        "import pytest",
+        "from http import HTTPStatus"
+    ],
+    {% if integration %}"decorators": [
+        "@pytest.mark.integration"
+    ], {% endif %}
+    "methods": [
+        {%- for method in test_data -%}{
+            "name": "{{method["name"]}}",
+            {% if method.get("decorators") %}"decorators": [
+                "{{'", "'.join(method.get["decorators"])}}"
+            ], {% endif %}
+            {% if method.get("arguments") -%}"arguments": [
+                {%- for argument in method["arguments"] -%}{
+                    "name": "{{argument["name"]}}",
+                    {% if argument.get("type") %} "type": "{{argument["type"]}}", {% endif -%}
+                }, {% endfor -%}
+            ], {% endif -%}
+            "contents": [ "{{'", "'.join(contents[method['method_name']])}}" ]
+        }, {% endfor -%}
+    ]
+}
